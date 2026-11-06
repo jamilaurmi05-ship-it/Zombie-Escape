@@ -1,0 +1,19 @@
+#ifndef ZOMBIE_H
+#define ZOMBIE_H
+
+#include <SFML/Graphics.hpp>
+
+class Zombie
+{
+private:
+    sf::RectangleShape shape;
+    float speed = 90.0f;
+
+public:
+    Zombie();
+
+    void update(float dt, sf::Vector2f playerPosition);
+    void draw(sf::RenderWindow& window) const;
+};
+
+#endif
