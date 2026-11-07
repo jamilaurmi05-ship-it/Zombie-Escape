@@ -45,3 +45,15 @@ sf::Vector2f Player::getPosition() const
 {
     return shape.getPosition();
 }
+
+// Day 2: Collision Detection
+sf::FloatRect Player::getBounds() const
+{
+    return shape.getGlobalBounds();
+}
+
+// Day 2: Reset Player Position
+void Player::reset()
+{
+    shape.setPosition({100.f, 300.f});
+}
