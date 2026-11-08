@@ -30,6 +30,7 @@ void Zombie::draw(sf::RenderWindow& window) const
 {
     window.draw(shape);
 }
+
 sf::FloatRect Zombie::getBounds() const
 {
     return shape.getGlobalBounds();
@@ -38,4 +39,9 @@ sf::FloatRect Zombie::getBounds() const
 void Zombie::reset()
 {
     shape.setPosition({650.f, 300.f});
+}
+
+void Zombie::setSpeed(float newSpeed)
+{
+    speed = newSpeed;
 }
