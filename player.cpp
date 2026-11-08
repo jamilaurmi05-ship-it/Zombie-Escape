@@ -12,17 +12,22 @@ void Player::update(float dt)
 {
     sf::Vector2f movement(0.f, 0.f);
 
+    float currentSpeed = speed;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+        currentSpeed = 400.f;
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        movement.y -= speed * dt;
+        movement.y -= currentSpeed * dt;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        movement.y += speed * dt;
+        movement.y += currentSpeed * dt;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        movement.x -= speed * dt;
+        movement.x -= currentSpeed * dt;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        movement.x += speed * dt;
+        movement.x += currentSpeed * dt;
 
     shape.move(movement);
 
@@ -46,13 +51,11 @@ sf::Vector2f Player::getPosition() const
     return shape.getPosition();
 }
 
-// Day 2: Collision Detection
 sf::FloatRect Player::getBounds() const
 {
     return shape.getGlobalBounds();
 }
 
-// Day 2: Reset Player Position
 void Player::reset()
 {
     shape.setPosition({100.f, 300.f});

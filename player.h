@@ -15,8 +15,6 @@ public:
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
     sf::Vector2f getPosition() const;
-
-    // Day 2: Collision and Reset
     sf::FloatRect getBounds() const;
     void reset();
 };
