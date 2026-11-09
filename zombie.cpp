@@ -1,3 +1,4 @@
+
 #include "zombie.h"
 #include <cmath>
 
@@ -8,10 +9,16 @@ Zombie::Zombie(sf::Vector2f position)
     shape.setSize({32.f, 32.f});
     shape.setOrigin({16.f, 16.f});
     shape.setPosition(startPosition);
-    shape.setFillColor(sf::Color::Red);
+
+    // Zombie appearance
+    shape.setFillColor(sf::Color(180, 30, 30));
+    shape.setOutlineThickness(2.f);
+    shape.setOutlineColor(sf::Color::White);
 }
 
-void Zombie::update(float dt, sf::Vector2f playerPosition)
+void Zombie::update(
+    float dt,
+    sf::Vector2f playerPosition)
 {
     sf::Vector2f direction =
         playerPosition - shape.getPosition();
