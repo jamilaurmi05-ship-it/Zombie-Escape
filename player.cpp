@@ -5,7 +5,11 @@ Player::Player()
     shape.setSize({30.f, 30.f});
     shape.setOrigin({15.f, 15.f});
     shape.setPosition({100.f, 300.f});
+
+    // Player appearance
     shape.setFillColor(sf::Color::Green);
+    shape.setOutlineThickness(2.f);
+    shape.setOutlineColor(sf::Color::White);
 }
 
 void Player::update(
@@ -16,19 +20,26 @@ void Player::update(
 
     float currentSpeed = speed;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+    if (sf::Keyboard::isKeyPressed(
+        sf::Keyboard::Key::LShift))
+    {
         currentSpeed = 400.f;
+    }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+    if (sf::Keyboard::isKeyPressed(
+        sf::Keyboard::Key::W))
         movement.y -= currentSpeed * dt;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+    if (sf::Keyboard::isKeyPressed(
+        sf::Keyboard::Key::S))
         movement.y += currentSpeed * dt;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    if (sf::Keyboard::isKeyPressed(
+        sf::Keyboard::Key::A))
         movement.x -= currentSpeed * dt;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+    if (sf::Keyboard::isKeyPressed(
+        sf::Keyboard::Key::D))
         movement.x += currentSpeed * dt;
 
     sf::Vector2f oldPosition = shape.getPosition();
@@ -72,4 +83,22 @@ sf::FloatRect Player::getBounds() const
 void Player::reset()
 {
     shape.setPosition({100.f, 300.f});
+}
+
+void Player::takeDamage(int damage)
+{
+    health -= damage;
+
+    if (health < 0)
+        health = 0;
+}
+
+int Player::getHealth() const
+{
+    return health;
+}
+
+void Player::resetHealth()
+{
+    health = 100;
 }
