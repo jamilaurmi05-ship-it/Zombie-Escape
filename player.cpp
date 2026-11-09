@@ -8,7 +8,9 @@ Player::Player()
     shape.setFillColor(sf::Color::Green);
 }
 
-void Player::update(float dt)
+void Player::update(
+    float dt,
+    const std::vector<sf::FloatRect>& walls)
 {
     sf::Vector2f movement(0.f, 0.f);
 
@@ -29,6 +31,8 @@ void Player::update(float dt)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         movement.x += currentSpeed * dt;
 
+    sf::Vector2f oldPosition = shape.getPosition();
+
     shape.move(movement);
 
     sf::Vector2f pos = shape.getPosition();
@@ -39,6 +43,15 @@ void Player::update(float dt)
     if (pos.y > 585.f) pos.y = 585.f;
 
     shape.setPosition(pos);
+
+    for (const auto& wall : walls)
+    {
+        if (shape.getGlobalBounds().findIntersection(wall))
+        {
+            shape.setPosition(oldPosition);
+            break;
+        }
+    }
 }
 
 void Player::draw(sf::RenderWindow& window) const

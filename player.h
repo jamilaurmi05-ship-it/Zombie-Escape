@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class Player
 {
@@ -12,7 +13,7 @@ private:
 public:
     Player();
 
-    void update(float dt);
+    void update(float dt, const std::vector<sf::FloatRect>& walls);
     void draw(sf::RenderWindow& window) const;
     sf::Vector2f getPosition() const;
     sf::FloatRect getBounds() const;
