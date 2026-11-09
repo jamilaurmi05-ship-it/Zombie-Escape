@@ -1,11 +1,13 @@
 #include "zombie.h"
 #include <cmath>
 
-Zombie::Zombie()
+Zombie::Zombie(sf::Vector2f position)
 {
+    startPosition = position;
+
     shape.setSize({32.f, 32.f});
     shape.setOrigin({16.f, 16.f});
-    shape.setPosition({650.f, 300.f});
+    shape.setPosition(startPosition);
     shape.setFillColor(sf::Color::Red);
 }
 
@@ -38,7 +40,7 @@ sf::FloatRect Zombie::getBounds() const
 
 void Zombie::reset()
 {
-    shape.setPosition({650.f, 300.f});
+    shape.setPosition(startPosition);
 }
 
 void Zombie::setSpeed(float newSpeed)

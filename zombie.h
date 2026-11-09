@@ -8,9 +8,10 @@ class Zombie
 private:
     sf::RectangleShape shape;
     float speed = 90.0f;
+    sf::Vector2f startPosition;
 
 public:
-    Zombie();
+    Zombie(sf::Vector2f position);
 
     void update(float dt, sf::Vector2f playerPosition);
     void draw(sf::RenderWindow& window) const;
