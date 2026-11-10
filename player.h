@@ -1,4 +1,3 @@
-
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -25,11 +24,11 @@ public:
     sf::Vector2f getPosition() const;
     sf::FloatRect getBounds() const;
 
-    void reset();
-
     void takeDamage(int damage);
     int getHealth() const;
-    void resetHealth();
+
+    void resetPosition();
+    void reset();
 };
 
 #endif
