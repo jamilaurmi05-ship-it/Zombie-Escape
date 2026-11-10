@@ -20,12 +20,14 @@ void Player::update(
 
     float currentSpeed = speed;
 
+    // Speed Boost
     if (sf::Keyboard::isKeyPressed(
         sf::Keyboard::Key::LShift))
     {
         currentSpeed = 400.f;
     }
 
+    // WASD Movement
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
         movement.y -= currentSpeed * dt;
 
@@ -38,7 +40,22 @@ void Player::update(
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         movement.x += currentSpeed * dt;
 
-    // Horizontal collision
+
+    // Arrow Key Movement
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+        movement.y -= currentSpeed * dt;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+        movement.y += currentSpeed * dt;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        movement.x -= currentSpeed * dt;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        movement.x += currentSpeed * dt;
+
+
+    // Horizontal Collision
     shape.move({movement.x, 0.f});
 
     for (const auto& wall : walls)
@@ -50,7 +67,8 @@ void Player::update(
         }
     }
 
-    // Vertical collision
+
+    // Vertical Collision
     shape.move({0.f, movement.y});
 
     for (const auto& wall : walls)
@@ -62,7 +80,8 @@ void Player::update(
         }
     }
 
-    // Screen boundary
+
+    // Screen Boundary
     sf::Vector2f pos = shape.getPosition();
 
     pos.x = std::max(15.f, std::min(785.f, pos.x));
@@ -71,21 +90,29 @@ void Player::update(
     shape.setPosition(pos);
 }
 
+
+// Draw Player
 void Player::draw(sf::RenderWindow& window) const
 {
     window.draw(shape);
 }
 
+
+// Get Player Position
 sf::Vector2f Player::getPosition() const
 {
     return shape.getPosition();
 }
 
+
+// Get Player Boundary
 sf::FloatRect Player::getBounds() const
 {
     return shape.getGlobalBounds();
 }
 
+
+// Reduce Health
 void Player::takeDamage(int damage)
 {
     health -= damage;
@@ -94,18 +121,22 @@ void Player::takeDamage(int damage)
         health = 0;
 }
 
+
+// Get Health
 int Player::getHealth() const
 {
     return health;
 }
 
-// Only position reset
+
+// Reset Position Only
 void Player::resetPosition()
 {
     shape.setPosition({100.f, 300.f});
 }
 
-// Full reset for new game
+
+// Reset Health and Position
 void Player::reset()
 {
     health = 100;
