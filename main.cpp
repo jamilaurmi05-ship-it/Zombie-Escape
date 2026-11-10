@@ -1,18 +1,19 @@
 
 #include <SFML/Graphics.hpp>
 #include <optional>
-#include <string>
 #include <vector>
+#include <string>
 
 #include "player.h"
 #include "zombie.h"
 #include "score.h"
+#include "pathfinder.h"
 
 int main()
 {
     sf::RenderWindow window(
         sf::VideoMode({800u, 600u}),
-        "Zombie Escape"
+        "Zombie Escape - BFS Edition"
     );
 
     window.setFramerateLimit(60);
@@ -56,12 +57,15 @@ int main()
         wallBounds.push_back(wall.getGlobalBounds());
     }
 
+    // BFS PathFinder
+    PathFinder pathFinder(wallBounds);
+
     // Exit
     sf::RectangleShape exitPoint({40.f, 40.f});
     exitPoint.setPosition({730.f, 530.f});
     exitPoint.setFillColor(sf::Color::Cyan);
 
-    // Score system
+    // Score
     ScoreManager scoreManager;
 
     // Clocks
@@ -81,13 +85,14 @@ int main()
         return 1;
     }
 
-    // Start menu title
+    // Title
     sf::Text titleText(font);
     titleText.setString("ZOMBIE ESCAPE");
     titleText.setCharacterSize(48);
     titleText.setFillColor(sf::Color::Red);
-    titleText.setPosition({190.f, 150.f});
+    titleText.setPosition({190.f, 130.f});
 
+    // Menu
     sf::Text menuText(font);
     menuText.setString(
         "Press ENTER to Play\n\n"
@@ -99,11 +104,11 @@ int main()
 
     // Game information
     sf::Text infoText(font);
-    infoText.setCharacterSize(20);
+    infoText.setCharacterSize(18);
     infoText.setFillColor(sf::Color::White);
-    infoText.setPosition({20.f, 20.f});
+    infoText.setPosition({20.f, 15.f});
 
-    // Health bar background
+    // Health background
     sf::RectangleShape healthBackground({200.f, 18.f});
     healthBackground.setPosition({20.f, 55.f});
     healthBackground.setFillColor(sf::Color(80, 80, 80));
@@ -113,18 +118,11 @@ int main()
     healthBar.setPosition({20.f, 55.f});
     healthBar.setFillColor(sf::Color::Green);
 
-    // Health label
-    sf::Text healthLabel(font);
-    healthLabel.setString("HEALTH");
-    healthLabel.setCharacterSize(16);
-    healthLabel.setFillColor(sf::Color::White);
-    healthLabel.setPosition({230.f, 52.f});
-
     // End screen
     sf::Text endText(font);
-    endText.setCharacterSize(35);
+    endText.setCharacterSize(28);
     endText.setFillColor(sf::Color::Yellow);
-    endText.setPosition({190.f, 230.f});
+    endText.setPosition({170.f, 200.f});
 
     // Main game loop
     while (window.isOpen())
@@ -149,42 +147,42 @@ int main()
                         gameWon = false;
 
                         player.reset();
-                        player.resetHealth();
 
                         for (auto& zombie : zombies)
-                        {
                             zombie.reset();
-                        }
 
                         scoreManager.reset();
+
                         damageClock.restart();
+                        clock.restart();
                     }
+
                     else if (key->code == sf::Keyboard::Key::Escape)
                     {
                         window.close();
                     }
                 }
 
-                // Restart or return to menu
+                // Restart
                 else if (gameOver || gameWon)
                 {
                     if (key->code == sf::Keyboard::Key::R)
                     {
                         player.reset();
-                        player.resetHealth();
 
                         for (auto& zombie : zombies)
-                        {
                             zombie.reset();
-                        }
 
                         scoreManager.reset();
-                        damageClock.restart();
 
                         gameOver = false;
                         gameWon = false;
+
+                        damageClock.restart();
+                        clock.restart();
                     }
 
+                    // Return to menu
                     if (key->code == sf::Keyboard::Key::M)
                     {
                         started = false;
@@ -197,30 +195,40 @@ int main()
 
         float dt = clock.restart().asSeconds();
 
+        // Prevent large frame jumps
+        if (dt > 0.05f)
+            dt = 0.05f;
+
         // Game update
         if (started && !gameOver && !gameWon)
         {
-            // Update player
+            // Player movement
             player.update(dt, wallBounds);
 
-            // Update score and survival time
+            // Score and survival time
             scoreManager.update(dt);
 
-            // Increase zombie speed
+            // Zombie difficulty
             float zombieSpeed =
-                90.f + (scoreManager.getSurvivalTime() / 10) * 10;
+                90.f +
+                (scoreManager.getSurvivalTime() / 10) * 10.f;
 
-            // Update zombies
+            // BFS Zombie movement
             for (auto& zombie : zombies)
             {
                 zombie.setSpeed(zombieSpeed);
-                zombie.update(dt, player.getPosition());
+
+                zombie.update(
+                    dt,
+                    player.getPosition(),
+                    pathFinder
+                );
             }
 
             // Check zombie collision
             bool hit = false;
 
-            for (auto& zombie : zombies)
+            for (const auto& zombie : zombies)
             {
                 if (player.getBounds().findIntersection(
                     zombie.getBounds()))
@@ -230,19 +238,19 @@ int main()
                 }
             }
 
-            // Player takes damage
+            // Player damage
             if (hit &&
                 damageClock.getElapsedTime().asSeconds() >= 1.f)
             {
                 player.takeDamage(20);
+
                 damageClock.restart();
 
-                player.reset();
+                // Reset positions only
+                player.resetPosition();
 
                 for (auto& zombie : zombies)
-                {
                     zombie.reset();
-                }
 
                 if (player.getHealth() <= 0)
                 {
@@ -250,7 +258,7 @@ int main()
                 }
             }
 
-            // Check exit
+            // Exit collision
             if (player.getBounds().findIntersection(
                 exitPoint.getGlobalBounds()))
             {
@@ -258,16 +266,16 @@ int main()
             }
         }
 
-        // Update information
+        // Score information
         infoText.setString(
             "Score: " +
             std::to_string(scoreManager.getScore()) +
-            "     Survival Time: " +
+            "   Survival Time: " +
             std::to_string(scoreManager.getSurvivalTime()) +
             " sec"
         );
 
-        // Update health bar
+        // Health bar
         healthBar.setSize({
             player.getHealth() * 2.f,
             18.f
@@ -289,54 +297,50 @@ int main()
         // Draw screen
         window.clear(sf::Color(30, 30, 30));
 
-        // Start menu
         if (!started)
         {
             window.draw(titleText);
             window.draw(menuText);
         }
-
-        // Game screen
         else
         {
             for (const auto& wall : walls)
-            {
                 window.draw(wall);
-            }
 
             window.draw(exitPoint);
 
             player.draw(window);
 
             for (const auto& zombie : zombies)
-            {
                 zombie.draw(window);
-            }
 
             window.draw(infoText);
             window.draw(healthBackground);
             window.draw(healthBar);
-            window.draw(healthLabel);
 
-            // Game over screen
             if (gameOver)
             {
                 endText.setString(
-                    "GAME OVER!\n"
-                    "Press R to Restart\n"
-                    "Press M for Menu"
+                    "GAME OVER!\n\n"
+                    "Score: " +
+                    std::to_string(scoreManager.getScore()) +
+                    "\nTime: " +
+                    std::to_string(scoreManager.getSurvivalTime()) +
+                    " sec\n\nPress R to Restart\nPress M for Menu"
                 );
 
                 window.draw(endText);
             }
 
-            // Win screen
             if (gameWon)
             {
                 endText.setString(
-                    "YOU WIN!\n"
-                    "Press R to Restart\n"
-                    "Press M for Menu"
+                    "YOU WIN!\n\n"
+                    "Score: " +
+                    std::to_string(scoreManager.getScore()) +
+                    "\nTime: " +
+                    std::to_string(scoreManager.getSurvivalTime()) +
+                    " sec\n\nPress R to Restart\nPress M for Menu"
                 );
 
                 window.draw(endText);
