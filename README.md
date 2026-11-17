@@ -47,7 +47,13 @@ avoid walls and reach the exit point.
 - Win and Game Over System
 
 ## Team Members
-Add all three members' names and student IDs.
+Member 1:Jamila Akther Urmi
+ID.253-115-005
+Member 2:Sabiha Tasnim 
+ID.253-115-048
+Member 3:Tasmima Akter Nira
+ID.253-115-029
+
 
 ## How to Run
 Compile the C++ files with the required SFML
